@@ -4,47 +4,49 @@ import joblib
 import torch
 import torch.nn as nn
 
-from flask import (
-    Flask,
-    request,
-    jsonify,
-    render_template
-)
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 
-# ============================================================
+# =========================================================
 # CONFIG
-# ============================================================
+# =========================================================
 
 MODEL_FILE = "model.pth"
 VECTORIZER_FILE = "vectorizer.pkl"
 FEEDBACK_FILE = "feedback.txt"
 
-FEEDBACK_THRESHOLD = 20
+FEEDBACK_THRESHOLD = 1
 
 
-# ============================================================
+# =========================================================
 # FLASK
-# ============================================================
+# =========================================================
 
 app = Flask(__name__)
 
-
-# ============================================================
-# DEVICE
-# ============================================================
-
-device = torch.device(
-
-    "cuda"
-    if torch.cuda.is_available()
-    else "cpu"
+CORS(
+    app,
+    resources={
+        r"/predict": {"origins": "*"},
+        r"/feedback": {"origins": "*"},
+        r"/health": {"origins": "*"}
+    }
 )
 
 
-# ============================================================
+# =========================================================
+# DEVICE
+# =========================================================
+
+device = torch.device(
+    "cuda" if torch.cuda.is_available() else "cpu"
+)
+
+
+# =========================================================
 # MODEL
-# ============================================================
+# =========================================================
 
 class TextClassifier(nn.Module):
 
@@ -54,73 +56,60 @@ class TextClassifier(nn.Module):
 
         self.network = nn.Sequential(
 
-            nn.Linear(
-                input_size,
-                128
-            ),
+            nn.Linear(input_size, 128),
 
             nn.ReLU(),
 
             nn.Dropout(0.3),
 
-            nn.Linear(
-                128,
-                64
-            ),
+            nn.Linear(128, 64),
 
             nn.ReLU(),
 
             nn.Dropout(0.3),
 
-            nn.Linear(
-                64,
-                1
-            )
+            nn.Linear(64, 1)
+
         )
-
 
     def forward(self, x):
 
         return self.network(x)
 
 
-# ============================================================
+# =========================================================
 # GLOBAL MODEL
-# ============================================================
+# =========================================================
 
 model = None
 vectorizer = None
 
 model_lock = threading.Lock()
 
+retraining_lock = threading.Lock()
 
-# ============================================================
+retraining_running = False
+
+
+# =========================================================
 # LOAD MODEL
-# ============================================================
+# =========================================================
 
 def load_model():
 
     global model
     global vectorizer
 
-
-    if not os.path.exists(
-        MODEL_FILE
-    ):
+    if not os.path.exists(MODEL_FILE):
 
         raise FileNotFoundError(
-            "model.pth not found. "
-            "Run train_model.py first."
+            "model.pth not found."
         )
 
-
-    if not os.path.exists(
-        VECTORIZER_FILE
-    ):
+    if not os.path.exists(VECTORIZER_FILE):
 
         raise FileNotFoundError(
-            "vectorizer.pkl not found. "
-            "Run train_model.py first."
+            "vectorizer.pkl not found."
         )
 
 
@@ -155,17 +144,21 @@ def load_model():
     with model_lock:
 
         vectorizer = new_vectorizer
+
         model = new_model
 
 
+    print("Spider-Sense model loaded.")
+
     print(
-        "Spider-Sense model loaded."
+        "Device:",
+        device
     )
 
 
-# ============================================================
-# COUNT FEEDBACK
-# ============================================================
+# =========================================================
+# FEEDBACK COUNT
+# =========================================================
 
 def get_feedback_count():
 
@@ -189,9 +182,9 @@ def get_feedback_count():
         )
 
 
-# ============================================================
+# =========================================================
 # SAVE FEEDBACK
-# ============================================================
+# =========================================================
 
 def save_feedback(
     text,
@@ -218,72 +211,16 @@ def save_feedback(
         )
 
 
-# ============================================================
-# RETRAIN
-# ============================================================
-
-def retrain_model():
-
-    try:
-
-        print()
-        print(
-            "🕷 Spider-Sense:"
-        )
-
-        print(
-            "Feedback threshold reached."
-        )
-
-        print(
-            "Starting automatic retraining..."
-        )
-
-
-        # Import training function
-
-        from train_model import train_model
-
-
-        success = train_model()
-
-
-        if success:
-
-            # Load newly trained model
-
-            load_model()
-
-
-            print(
-                "🧠 Spider-Sense model updated!"
-            )
-
-
-        else:
-
-            print(
-                "Training did not complete."
-            )
-
-
-    except Exception as error:
-
-        print(
-            "Retraining error:",
-            error
-        )
-
-
-# ============================================================
-# PREDICT
-# ============================================================
+# =========================================================
+# PREDICTION
+# =========================================================
 
 def predict_text(text):
 
     with model_lock:
 
         current_model = model
+
         current_vectorizer = vectorizer
 
 
@@ -316,7 +253,6 @@ def predict_text(text):
             output = current_model(
                 tensor
             )
-
 
             probability = torch.sigmoid(
                 output
@@ -351,24 +287,98 @@ def predict_text(text):
             probability * 100,
             2
         )
+
     }
 
 
-# ============================================================
+# =========================================================
+# RETRAINING
+# =========================================================
+
+def retrain_model():
+
+    global retraining_running
+
+
+    if retraining_running:
+
+        print(
+            "Retraining already running."
+        )
+
+        return
+
+
+    with retraining_lock:
+
+        retraining_running = True
+
+
+        try:
+
+            print()
+            print(
+                "Spider-Sense retraining started..."
+            )
+
+
+            from train_model import train_model
+
+
+            success = train_model()
+
+
+            if success:
+
+                load_model()
+
+
+                print(
+                    "Spider-Sense model updated."
+                )
+
+            else:
+
+                print(
+                    "Training did not complete."
+                )
+
+
+        except Exception as error:
+
+            print(
+                "Retraining error:",
+                error
+            )
+
+
+        finally:
+
+            retraining_running = False
+
+
+# =========================================================
 # HOME
-# ============================================================
+# =========================================================
 
 @app.route("/")
 def home():
 
-    return render_template(
-        "app.html"
-    )
+    return jsonify({
+
+        "name": "Spider-Sense",
+
+        "status": "online",
+
+        "message":
+            "Spider-Sense API is running."
+
+    })
 
 
-# ============================================================
-# PREDICT API
-# ============================================================
+# =========================================================
+# PREDICT
+# =========================================================
 
 @app.route(
     "/predict",
@@ -384,7 +394,10 @@ def predict():
     if not data:
 
         return jsonify({
-            "error": "Invalid request."
+
+            "error":
+                "Invalid JSON request."
+
         }), 400
 
 
@@ -400,7 +413,10 @@ def predict():
     ):
 
         return jsonify({
-            "error": "Text must be a string."
+
+            "error":
+                "Text must be a string."
+
         }), 400
 
 
@@ -410,7 +426,10 @@ def predict():
     if not text:
 
         return jsonify({
-            "error": "Text cannot be empty."
+
+            "error":
+                "Text cannot be empty."
+
         }), 400
 
 
@@ -428,14 +447,23 @@ def predict():
 
     except Exception as error:
 
+        print(
+            "Prediction error:",
+            error
+        )
+
+
         return jsonify({
-            "error": str(error)
+
+            "error":
+                str(error)
+
         }), 500
 
 
-# ============================================================
-# FEEDBACK API
-# ============================================================
+# =========================================================
+# FEEDBACK
+# =========================================================
 
 @app.route(
     "/feedback",
@@ -451,7 +479,10 @@ def feedback():
     if not data:
 
         return jsonify({
-            "error": "Invalid request."
+
+            "error":
+                "Invalid JSON request."
+
         }), 400
 
 
@@ -473,7 +504,10 @@ def feedback():
     ):
 
         return jsonify({
-            "error": "Invalid text."
+
+            "error":
+                "Invalid text."
+
         }), 400
 
 
@@ -483,7 +517,10 @@ def feedback():
     ):
 
         return jsonify({
-            "error": "Invalid label."
+
+            "error":
+                "Invalid label."
+
         }), 400
 
 
@@ -499,7 +536,10 @@ def feedback():
     if not text:
 
         return jsonify({
-            "error": "Text cannot be empty."
+
+            "error":
+                "Text cannot be empty."
+
         }), 400
 
 
@@ -509,12 +549,12 @@ def feedback():
     ]:
 
         return jsonify({
+
             "error":
                 "Label must be human or ai."
+
         }), 400
 
-
-    # Save feedback
 
     save_feedback(
         text,
@@ -522,27 +562,22 @@ def feedback():
     )
 
 
-    # Count feedback
-
     feedback_count = (
         get_feedback_count()
     )
 
 
     print(
-        f"Feedback received: "
-        f"{feedback_count}"
+        "Feedback received:",
+        feedback_count
     )
 
 
-    # ========================================================
-    # AUTOMATIC RETRAIN
-    # ========================================================
-
-    if feedback_count >= FEEDBACK_THRESHOLD:
-
-        # Start training in background
-        # so the HTTP request can finish.
+    if (
+        feedback_count >=
+        FEEDBACK_THRESHOLD
+        and not retraining_running
+    ):
 
         thread = threading.Thread(
             target=retrain_model,
@@ -558,14 +593,15 @@ def feedback():
 
             "message":
                 "Feedback saved. "
-                "Spider-Sense is retraining "
-                "with the new feedback.",
+                "Spider-Sense is "
+                "retraining.",
 
             "feedback_count":
                 feedback_count,
 
             "retraining":
                 True
+
         })
 
 
@@ -580,24 +616,31 @@ def feedback():
             feedback_count,
 
         "remaining_until_retrain":
-            FEEDBACK_THRESHOLD -
-            feedback_count,
+            max(
+                0,
+                FEEDBACK_THRESHOLD
+                - feedback_count
+            ),
 
         "retraining":
-            False
+            retraining_running
+
     })
 
 
-# ============================================================
+# =========================================================
 # HEALTH
-# ============================================================
+# =========================================================
 
-@app.route("/health")
+@app.route(
+    "/health"
+)
 def health():
 
     return jsonify({
 
-        "status": "online",
+        "status":
+            "online",
 
         "model":
             "Spider-Sense",
@@ -606,29 +649,37 @@ def health():
             str(device),
 
         "feedback_count":
-            get_feedback_count()
+            get_feedback_count(),
+
+        "retraining":
+            retraining_running
+
     })
 
 
-# ============================================================
+# =========================================================
 # START
-# ============================================================
+# =========================================================
 
 if __name__ == "__main__":
 
     load_model()
 
 
+    port = int(
+        os.environ.get(
+            "PORT",
+            5000
+        )
+    )
+
+
     app.run(
 
         host="0.0.0.0",
 
-        port=int(
-            os.environ.get(
-                "PORT",
-                5000
-            )
-        ),
+        port=port,
 
         debug=False
+
     )
