@@ -16,7 +16,7 @@ MODEL_FILE = "model.pth"
 VECTORIZER_FILE = "vectorizer.pkl"
 FEEDBACK_FILE = "feedback.txt"
 
-FEEDBACK_THRESHOLD = 1
+FEEDBACK_THRESHOLD = 5
 
 
 # =========================================================
