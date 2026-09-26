@@ -806,9 +806,8 @@
 
 
             const predictedLabel =
-                data.prediction ||
-                data.label ||
-                "Unknown";
+                 data.result ||
+                 "Unknown";
 
 
             let confidenceValue =
@@ -840,7 +839,10 @@
 
             lastPrediction =
                 String(predictedLabel)
-                    .toLowerCase();
+                .toLowerCase()
+                .includes("ai")
+                ? "ai"
+                : "human";
 
 
             prediction.textContent =
