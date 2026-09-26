@@ -280,7 +280,7 @@ def validate(model, loader):
 # 11. TRAINING
 # ============================================================
 
-EPOCHS = 1000
+EPOCHS = 50
 
 for epoch in range(EPOCHS):
 
@@ -324,7 +324,7 @@ for epoch in range(EPOCHS):
         val_loader
     )
 
-    if (epoch + 1)%100 == 0:
+    if (epoch + 1)%10 == 0:
 
         print(
             f"Epoch [{epoch + 1}/{EPOCHS}] "
