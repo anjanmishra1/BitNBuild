@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,23 +9,20 @@
 
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
         }
 
         body {
+            min-height: 100vh;
             font-family: Arial, Helvetica, sans-serif;
             background:
-                radial-gradient(circle at 20% 20%, rgba(255, 30, 30, 0.08), transparent 30%),
-                radial-gradient(circle at 80% 30%, rgba(0, 140, 255, 0.08), transparent 30%),
-                #05070b;
-            color: #f2f2f2;
-            min-height: 100vh;
+                linear-gradient(rgba(255, 0, 0, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 140, 255, 0.025) 1px, transparent 1px),
+                #05070d;
+            background-size: 40px 40px;
+            color: #eaf2ff;
             overflow-x: hidden;
         }
 
@@ -33,483 +31,353 @@
             position: fixed;
             inset: 0;
             pointer-events: none;
-            background:
-                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-            background-size: 40px 40px;
-            z-index: -2;
-        }
-
-        body::after {
-            content: "";
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
             background: repeating-linear-gradient(
-                0deg,
-                rgba(255,255,255,0.015),
-                rgba(255,255,255,0.015) 1px,
-                transparent 1px,
-                transparent 4px
+                to bottom,
+                transparent 0px,
+                transparent 3px,
+                rgba(255,255,255,0.015) 4px
             );
             z-index: 10;
-            opacity: 0.35;
-        }
-
-        nav {
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            backdrop-filter: blur(15px);
-            background: rgba(5, 7, 11, 0.85);
-            border-bottom: 1px solid rgba(255, 50, 50, 0.2);
-        }
-
-        .nav-inner {
-            max-width: 1200px;
-            margin: auto;
-            padding: 18px 25px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .logo {
-            font-size: 20px;
-            font-weight: 900;
-            letter-spacing: 3px;
-            color: #ff3030;
-            text-shadow: 0 0 15px rgba(255, 30, 30, 0.7);
-        }
-
-        .logo span {
-            color: white;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 28px;
-        }
-
-        .nav-links a {
-            color: #bbb;
-            text-decoration: none;
-            font-size: 14px;
-            transition: 0.25s;
-        }
-
-        .nav-links a:hover {
-            color: #ff4040;
-        }
-
-        .hero {
-            max-width: 1200px;
-            margin: auto;
-            padding: 90px 25px 50px;
-            text-align: center;
-        }
-
-        .spider {
-            font-size: 65px;
-            filter: drop-shadow(0 0 15px rgba(255, 30, 30, 0.7));
-            margin-bottom: 15px;
-        }
-
-        .hero h1 {
-            font-size: clamp(40px, 7vw, 78px);
-            font-weight: 900;
-            letter-spacing: 8px;
-            color: white;
-            text-shadow:
-                0 0 10px rgba(255,255,255,0.2),
-                0 0 30px rgba(255, 30, 30, 0.3);
-        }
-
-        .hero h1 span {
-            color: #ff3030;
-        }
-
-        .hero p {
-            max-width: 750px;
-            margin: 20px auto;
-            color: #999;
-            font-size: 17px;
-            line-height: 1.7;
-        }
-
-        .status {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 10px;
-            padding: 8px 15px;
-            border: 1px solid rgba(0, 255, 120, 0.3);
-            border-radius: 20px;
-            color: #69ff9c;
-            background: rgba(0, 255, 120, 0.05);
-            font-size: 12px;
-            letter-spacing: 1px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #45ff8a;
-            border-radius: 50%;
-            box-shadow: 0 0 12px #45ff8a;
         }
 
         .container {
-            max-width: 1000px;
+            width: min(1100px, 92%);
             margin: auto;
-            padding: 20px 25px 80px;
+        }
+
+        header {
+            padding: 28px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 3px;
+        }
+
+        .logo span {
+            color: #ff1744;
+        }
+
+        nav a {
+            color: #9aa9c4;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 14px;
+        }
+
+        nav a:hover {
+            color: white;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 90px 0 50px;
+        }
+
+        .spider {
+            font-size: 58px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 15px rgba(255, 0, 50, 0.5));
+        }
+
+        .hero h1 {
+            font-size: clamp(42px, 8vw, 80px);
+            font-weight: 900;
+            letter-spacing: 6px;
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 span {
+            color: #ff1744;
+        }
+
+        .hero p {
+            max-width: 720px;
+            margin: auto;
+            color: #9aa9c4;
+            line-height: 1.7;
+            font-size: 17px;
         }
 
         .panel {
-            position: relative;
-            padding: 35px;
-            border: 1px solid rgba(255, 50, 50, 0.25);
-            background: rgba(10, 13, 19, 0.88);
-            border-radius: 18px;
+            background: rgba(8, 12, 22, 0.88);
+            border: 1px solid rgba(0, 150, 255, 0.22);
+            border-radius: 16px;
+            padding: 28px;
             box-shadow:
-                0 0 40px rgba(255, 20, 20, 0.06),
-                inset 0 0 30px rgba(255, 255, 255, 0.01);
+                0 0 35px rgba(0, 100, 255, 0.08),
+                inset 0 0 30px rgba(255, 0, 60, 0.02);
         }
 
-        .panel::before {
-            content: "SPIDER-SENSE // ANALYSIS CORE";
-            position: absolute;
-            top: -10px;
-            left: 25px;
-            padding: 0 10px;
-            background: #05070b;
-            color: #ff4040;
-            font-size: 11px;
+        .panel-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .panel-title h2 {
+            font-size: 18px;
             letter-spacing: 2px;
+        }
+
+        .status {
+            font-size: 12px;
+            color: #56d9ff;
+            letter-spacing: 1px;
         }
 
         textarea {
             width: 100%;
-            min-height: 240px;
+            min-height: 230px;
             resize: vertical;
-            background: #07090e;
-            color: #eee;
-            border: 1px solid #242a35;
-            border-radius: 12px;
-            padding: 20px;
-            outline: none;
+            background: #03050a;
+            color: #eaf2ff;
+            border: 1px solid #1c3550;
+            border-radius: 10px;
+            padding: 18px;
             font-size: 16px;
-            line-height: 1.7;
-            transition: 0.25s;
+            line-height: 1.6;
+            outline: none;
         }
 
         textarea:focus {
-            border-color: #ff3030;
-            box-shadow: 0 0 20px rgba(255, 30, 30, 0.12);
-        }
-
-        textarea::placeholder {
-            color: #555;
+            border-color: #1677ff;
+            box-shadow: 0 0 20px rgba(0, 119, 255, 0.15);
         }
 
         .analyze-btn {
             width: 100%;
-            margin-top: 18px;
+            margin-top: 16px;
             padding: 17px;
             border: none;
-            border-radius: 10px;
+            border-radius: 9px;
             cursor: pointer;
-            background: linear-gradient(90deg, #ff2020, #a80000);
+            background: linear-gradient(90deg, #ff1744, #d50000);
             color: white;
+            font-size: 16px;
             font-weight: 800;
-            font-size: 15px;
             letter-spacing: 2px;
-            box-shadow: 0 0 25px rgba(255, 20, 20, 0.18);
-            transition: 0.25s;
+            transition: 0.2s;
         }
 
         .analyze-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 35px rgba(255, 30, 30, 0.35);
+            box-shadow: 0 0 25px rgba(255, 23, 68, 0.3);
         }
 
-        .result-box {
-            display: none;
-            margin-top: 25px;
-            padding: 25px;
-            border-radius: 14px;
-            background: #080b11;
-            border: 1px solid #252b36;
-            text-align: center;
-        }
-
-        .result-label {
-            color: #666;
-            font-size: 11px;
-            letter-spacing: 3px;
-            margin-bottom: 10px;
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         #result {
-            font-size: 30px;
-            font-weight: 900;
+            display: none;
+            margin-top: 25px;
+            padding: 25px;
+            border-radius: 12px;
+            background: #070b14;
+            border: 1px solid #21354d;
+        }
+
+        .result-label {
+            font-size: 13px;
+            color: #8190a8;
             letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        #prediction {
+            font-size: 36px;
+            font-weight: 900;
             margin-bottom: 8px;
         }
 
         #confidence {
-            color: #aaa;
-            font-size: 14px;
+            color: #9aa9c4;
+            margin-bottom: 20px;
         }
 
-        .feedback-box {
+        .meter {
+            width: 100%;
+            height: 9px;
+            background: #111a28;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        #confidence-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #1677ff, #ff1744);
+            transition: width 0.6s ease;
+        }
+
+        #feedback-box {
             display: none;
-            margin-top: 20px;
+            margin-top: 22px;
             padding: 20px;
-            border: 1px solid rgba(0, 150, 255, 0.25);
-            background: rgba(0, 100, 255, 0.04);
-            border-radius: 12px;
-            text-align: center;
+            border: 1px solid #26384f;
+            border-radius: 10px;
+            background: #080d17;
         }
 
-        .feedback-box p {
-            color: #bbb;
+        #feedback-box p {
+            color: #aebbd0;
             margin-bottom: 14px;
         }
 
-        .feedback-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
         .feedback-btn {
-            border: 1px solid #333;
-            background: #10141c;
+            padding: 10px 16px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            border-radius: 7px;
+            border: 1px solid #29425f;
+            background: #0d1624;
             color: white;
-            padding: 11px 20px;
-            border-radius: 8px;
             cursor: pointer;
-            transition: 0.2s;
         }
 
         .feedback-btn:hover {
-            border-color: #ff4040;
-            transform: translateY(-1px);
+            border-color: #1687ff;
         }
 
-        .correct-btn:hover {
-            border-color: #4cff91;
-            color: #4cff91;
-        }
-
-        .wrong-btn:hover {
-            border-color: #ff6060;
-            color: #ff6060;
-        }
-
-        .correction-box {
+        #correction-box {
             display: none;
-            margin-top: 18px;
-            padding-top: 18px;
-            border-top: 1px solid #252b36;
-        }
-
-        .correction-box p {
-            font-size: 13px;
-            margin-bottom: 12px;
-        }
-
-        .correction-btn {
-            padding: 10px 22px;
-            margin: 4px;
-            border: 1px solid #333;
-            background: #0d1118;
-            color: white;
-            border-radius: 7px;
-            cursor: pointer;
-        }
-
-        .correction-btn:hover {
-            border-color: #4ba3ff;
-            color: #4ba3ff;
+            margin-top: 12px;
         }
 
         section {
-            max-width: 1200px;
-            margin: auto;
-            padding: 90px 25px;
+            padding: 80px 0;
         }
 
         .section-title {
-            font-size: 36px;
-            margin-bottom: 15px;
-            letter-spacing: 3px;
-        }
-
-        .section-title span {
-            color: #ff3030;
-        }
-
-        .section-subtitle {
-            color: #777;
-            max-width: 700px;
-            line-height: 1.7;
-            margin-bottom: 35px;
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
         }
 
         .cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            padding: 25px;
+            border: 1px solid #172a40;
+            border-radius: 12px;
+            background: rgba(8, 12, 22, 0.7);
+        }
+
+        .card h3 {
+            margin-bottom: 12px;
+            color: #56b8ff;
+        }
+
+        .card p {
+            color: #929fb4;
+            line-height: 1.7;
+        }
+
+        .steps {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
         }
 
-        .card {
-            padding: 28px;
-            border: 1px solid #202630;
-            border-radius: 14px;
-            background: rgba(10, 13, 19, 0.75);
-            transition: 0.25s;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(255, 50, 50, 0.45);
-            box-shadow: 0 10px 35px rgba(255, 20, 20, 0.08);
-        }
-
-        .card-number {
-            color: #ff3030;
-            font-size: 12px;
-            letter-spacing: 2px;
-            margin-bottom: 15px;
-        }
-
-        .card h3 {
-            margin-bottom: 12px;
-            font-size: 20px;
-        }
-
-        .card p {
-            color: #888;
-            line-height: 1.7;
-            font-size: 14px;
-        }
-
-        .demo-flow {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
-            margin-top: 30px;
-        }
-
         .step {
-            padding: 25px;
-            border-left: 2px solid #ff3030;
-            background: rgba(255, 30, 30, 0.035);
+            text-align: center;
+            padding: 30px 20px;
+            border: 1px solid #172a40;
+            border-radius: 12px;
+            background: rgba(8, 12, 22, 0.7);
         }
 
-        .step span {
-            color: #ff3030;
-            font-weight: 900;
+        .step-number {
             font-size: 13px;
+            color: #ff1744;
             letter-spacing: 2px;
+            margin-bottom: 12px;
         }
 
         .step h3 {
-            margin: 10px 0;
+            margin-bottom: 10px;
         }
 
         .step p {
-            color: #888;
-            font-size: 14px;
+            color: #929fb4;
             line-height: 1.6;
         }
 
-        .tech-list {
+        .tech {
             display: flex;
+            justify-content: center;
             flex-wrap: wrap;
             gap: 12px;
-            margin-top: 25px;
         }
 
-        .tech {
-            padding: 10px 15px;
-            border: 1px solid #292f3a;
-            border-radius: 8px;
-            color: #bbb;
-            background: #0a0d13;
-            font-size: 13px;
+        .tech span {
+            padding: 12px 18px;
+            border: 1px solid #243951;
+            border-radius: 30px;
+            color: #b8c6da;
+            background: #080d16;
         }
 
         .disclaimer {
-            max-width: 900px;
-            margin: 0 auto 60px;
-            padding: 20px;
-            border: 1px solid rgba(255, 180, 0, 0.2);
-            background: rgba(255, 180, 0, 0.03);
-            border-radius: 12px;
-            color: #999;
+            text-align: center;
+            color: #68768b;
             font-size: 13px;
             line-height: 1.7;
-            text-align: center;
+            max-width: 750px;
+            margin: auto;
         }
 
         footer {
-            padding: 30px 20px;
-            border-top: 1px solid #181d25;
+            padding: 35px 0;
+            border-top: 1px solid rgba(255,255,255,0.07);
             text-align: center;
-            color: #555;
-            font-size: 12px;
+            color: #59677b;
+            font-size: 13px;
         }
 
-        @media (max-width: 800px) {
-            .cards,
-            .demo-flow {
-                grid-template-columns: 1fr;
+        @media (max-width: 700px) {
+            .nav {
+                flex-direction: column;
             }
 
-            .nav-links {
-                gap: 12px;
-            }
-
-            .nav-links a {
-                font-size: 12px;
-            }
-
-            .panel {
-                padding: 25px 18px;
+            nav a {
+                margin: 0 7px;
             }
 
             .hero {
                 padding-top: 60px;
             }
 
-            section {
-                padding: 65px 20px;
-            }
-        }
-
-        @media (max-width: 500px) {
-            .nav-inner {
-                padding: 15px;
+            .cards,
+            .steps {
+                grid-template-columns: 1fr;
             }
 
-            .logo {
-                font-size: 16px;
+            .panel {
+                padding: 18px;
             }
 
-            .nav-links {
-                gap: 8px;
-            }
-
-            .nav-links a {
-                font-size: 11px;
-            }
-
-            textarea {
-                min-height: 200px;
+            #prediction {
+                font-size: 28px;
             }
         }
     </style>
@@ -517,529 +385,669 @@
 
 <body>
 
-    <!-- NAVIGATION -->
-    <nav>
-        <div class="nav-inner">
-
-            <div class="logo">
-                SPIDER<span>-SENSE</span>
-            </div>
-
-            <div class="nav-links">
-                <a href="#detector">Detector</a>
-                <a href="#about">About</a>
-                <a href="#demo">Demo</a>
-                <a href="#technology">Technology</a>
-            </div>
-
+<header>
+    <div class="container nav">
+        <div class="logo">
+            <span>SPIDER</span>-SENSE
         </div>
-    </nav>
 
+        <nav>
+            <a href="#detector">Detector</a>
+            <a href="#about">About</a>
+            <a href="#demo">Demo</a>
+            <a href="#tech">Tech</a>
+        </nav>
+    </div>
+</header>
+
+
+<main>
 
     <!-- HERO -->
-    <header class="hero">
+    <section class="hero">
+        <div class="container">
+            <div class="spider">🕷️</div>
 
-        <div class="spider">🕷️</div>
+            <h1>
+                SPIDER<span>-SENSE</span>
+            </h1>
 
-        <h1>SPIDER<span>-SENSE</span></h1>
-
-        <p>
-            Detect suspicious AI-generated writing using machine-learning
-            patterns before you believe it, share it, or pass it on.
-        </p>
-
-        <div class="status">
-            <span class="status-dot"></span>
-            SYSTEM ONLINE
+            <p>
+                Give the city a Spider-Sense for AI-written text.
+                Analyze an article, post, or message and estimate
+                whether it was written by a human or generated by AI.
+            </p>
         </div>
-
-    </header>
+    </section>
 
 
     <!-- DETECTOR -->
-    <main class="container" id="detector">
+    <section id="detector">
+        <div class="container">
 
-        <div class="panel">
+            <div class="panel">
 
-            <textarea
-                id="text-input"
-                placeholder="Paste an article, message, paragraph, or any text here..."
-            ></textarea>
-
-            <button class="analyze-btn" onclick="analyzeText()">
-                🕷 ANALYZE TEXT
-            </button>
-
-
-            <!-- RESULT -->
-            <div class="result-box" id="result-box">
-
-                <div class="result-label">
-                    SPIDER-SENSE RESULT
+                <div class="panel-title">
+                    <h2>TEXT ANALYSIS TERMINAL</h2>
+                    <div class="status">● SYSTEM READY</div>
                 </div>
 
+                <textarea
+                    id="textInput"
+                    placeholder="Paste the text you want Spider-Sense to analyze..."
+                ></textarea>
+
+                <button
+                    class="analyze-btn"
+                    id="analyzeButton"
+                    onclick="analyzeText()"
+                >
+                    ANALYZE TEXT
+                </button>
+
+
+                <!-- RESULT -->
                 <div id="result">
-                    ANALYZING...
-                </div>
 
-                <div id="confidence"></div>
+                    <div class="result-label">
+                        DETECTION RESULT
+                    </div>
 
-            </div>
+                    <div id="prediction">
+                        --
+                    </div>
 
+                    <div id="confidence">
+                        Confidence: --
+                    </div>
 
-            <!-- FEEDBACK -->
-            <div class="feedback-box" id="feedback-box">
-
-                <p>
-                    Was this prediction correct?
-                </p>
-
-                <div class="feedback-buttons">
-
-                    <button
-                        class="feedback-btn correct-btn"
-                        onclick="predictionCorrect()"
-                    >
-                        ✓ Correct
-                    </button>
-
-                    <button
-                        class="feedback-btn wrong-btn"
-                        onclick="showCorrection()"
-                    >
-                        ✗ Wrong
-                    </button>
-
-                </div>
+                    <div class="meter">
+                        <div id="confidence-bar"></div>
+                    </div>
 
 
-                <!-- CORRECTION -->
-                <div class="correction-box" id="correction-box">
+                    <!-- FEEDBACK -->
+                    <div id="feedback-box">
 
-                    <p>
-                        What is the correct label?
-                    </p>
+                        <p>
+                            Was this prediction correct?
+                        </p>
 
-                    <button
-                        class="correction-btn"
-                        onclick="submitCorrection('human')"
-                    >
-                        HUMAN
-                    </button>
+                        <button
+                            class="feedback-btn"
+                            onclick="predictionCorrect()"
+                        >
+                            ✓ Correct
+                        </button>
 
-                    <button
-                        class="correction-btn"
-                        onclick="submitCorrection('ai')"
-                    >
-                        AI
-                    </button>
+                        <button
+                            class="feedback-btn"
+                            onclick="showCorrection()"
+                        >
+                            ✗ Wrong
+                        </button>
+
+
+                        <div id="correction-box">
+
+                            <p>
+                                What is the correct label?
+                            </p>
+
+                            <button
+                                class="feedback-btn"
+                                onclick="submitCorrection('human')"
+                            >
+                                Human
+                            </button>
+
+                            <button
+                                class="feedback-btn"
+                                onclick="submitCorrection('ai')"
+                            >
+                                AI
+                            </button>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
             </div>
 
         </div>
-
-    </main>
+    </section>
 
 
     <!-- ABOUT -->
     <section id="about">
+        <div class="container">
 
-        <h2 class="section-title">
-            ABOUT <span>SPIDER-SENSE</span>
-        </h2>
+            <h2 class="section-title">
+                WHAT IS SPIDER-SENSE?
+            </h2>
 
-        <p class="section-subtitle">
-            Spider-Sense is a machine-learning based text analysis system
-            designed to estimate whether a piece of writing resembles
-            human-written or AI-generated text.
-        </p>
+            <div class="cards">
 
-        <div class="cards">
+                <div class="card">
+                    <h3>Pattern Analysis</h3>
+                    <p>
+                        Spider-Sense analyzes statistical patterns in
+                        text using TF-IDF features and a neural network
+                        classifier.
+                    </p>
+                </div>
 
-            <div class="card">
-                <div class="card-number">01 // PATTERN ANALYSIS</div>
+                <div class="card">
+                    <h3>Fast Inference</h3>
+                    <p>
+                        The trained model processes submitted text
+                        through a Flask API and returns a prediction
+                        and confidence estimate.
+                    </p>
+                </div>
 
-                <h3>Finds Text Patterns</h3>
+                <div class="card">
+                    <h3>Human Feedback</h3>
+                    <p>
+                        Users can report incorrect predictions.
+                        Corrected examples can be collected and used
+                        during future model retraining.
+                    </p>
+                </div>
 
-                <p>
-                    The system converts text into numerical features using
-                    TF-IDF and looks for patterns learned from labeled
-                    examples.
-                </p>
-            </div>
+                <div class="card">
+                    <h3>Responsible Detection</h3>
+                    <p>
+                        The detector provides a probabilistic estimate.
+                        It should not be treated as definitive proof
+                        of who or what authored a piece of text.
+                    </p>
+                </div>
 
-
-            <div class="card">
-                <div class="card-number">02 // MACHINE LEARNING</div>
-
-                <h3>Neural Network</h3>
-
-                <p>
-                    A PyTorch neural network processes the extracted
-                    features and produces an estimated probability for
-                    AI-generated writing.
-                </p>
-            </div>
-
-
-            <div class="card">
-                <div class="card-number">03 // HUMAN FEEDBACK</div>
-
-                <h3>Learning From Corrections</h3>
-
-                <p>
-                    When a user identifies a wrong prediction, the corrected
-                    label can be stored as feedback and used during future
-                    model retraining.
-                </p>
             </div>
 
         </div>
-
     </section>
 
 
     <!-- DEMO -->
     <section id="demo">
+        <div class="container">
 
-        <h2 class="section-title">
-            HOW IT <span>WORKS</span>
-        </h2>
+            <h2 class="section-title">
+                HOW IT WORKS
+            </h2>
 
-        <p class="section-subtitle">
-            Spider-Sense follows a simple analysis and feedback pipeline.
-        </p>
+            <div class="steps">
 
-        <div class="demo-flow">
+                <div class="step">
+                    <div class="step-number">
+                        01 // INPUT
+                    </div>
 
-            <div class="step">
-                <span>01 // INPUT</span>
+                    <h3>Submit Text</h3>
 
-                <h3>Paste Text</h3>
-
-                <p>
-                    Enter an article, paragraph, message, or other text
-                    into the analysis box.
-                </p>
-            </div>
-
-
-            <div class="step">
-                <span>02 // ANALYZE</span>
-
-                <h3>Detect Patterns</h3>
-
-                <p>
-                    TF-IDF converts the text into features and the trained
-                    PyTorch model analyzes those features.
-                </p>
-            </div>
+                    <p>
+                        Paste an article, paragraph, post, or message
+                        into the analysis terminal.
+                    </p>
+                </div>
 
 
-            <div class="step">
-                <span>03 // FEEDBACK</span>
+                <div class="step">
+                    <div class="step-number">
+                        02 // ANALYZE
+                    </div>
 
-                <h3>Correct the Model</h3>
+                    <h3>Spider-Sense</h3>
 
-                <p>
-                    If the result is wrong, provide the correct label.
-                    Reviewed examples are collected for model retraining.
-                </p>
+                    <p>
+                        The Flask backend converts the text into
+                        TF-IDF features and runs the PyTorch model.
+                    </p>
+                </div>
+
+
+                <div class="step">
+                    <div class="step-number">
+                        03 // RESULT
+                    </div>
+
+                    <h3>Prediction</h3>
+
+                    <p>
+                        The system returns an AI or Human prediction
+                        together with a confidence estimate.
+                    </p>
+                </div>
+
             </div>
 
         </div>
-
     </section>
 
 
-    <!-- TECHNOLOGY -->
-    <section id="technology">
+    <!-- TECH -->
+    <section id="tech">
+        <div class="container">
 
-        <h2 class="section-title">
-            BUILT <span>WITH</span>
-        </h2>
+            <h2 class="section-title">
+                BUILT WITH
+            </h2>
 
-        <p class="section-subtitle">
-            The Spider-Sense prototype combines classical text
-            vectorization, neural-network classification, and a Flask
-            web interface.
-        </p>
-
-        <div class="tech-list">
-
-            <div class="tech">🐍 Python</div>
-
-            <div class="tech">🔥 PyTorch</div>
-
-            <div class="tech">📊 TF-IDF</div>
-
-            <div class="tech">🧠 Scikit-learn</div>
-
-            <div class="tech">🌐 Flask</div>
-
-            <div class="tech">⚡ JavaScript</div>
-
-            <div class="tech">🎨 HTML / CSS</div>
+            <div class="tech">
+                <span>Python</span>
+                <span>PyTorch</span>
+                <span>TF-IDF</span>
+                <span>scikit-learn</span>
+                <span>Flask</span>
+                <span>JavaScript</span>
+                <span>HTML</span>
+                <span>CSS</span>
+            </div>
 
         </div>
-
     </section>
 
 
     <!-- DISCLAIMER -->
-    <div class="disclaimer">
+    <section>
+        <div class="container">
 
-        ⚠️ <strong>Important:</strong>
-        Spider-Sense provides a probabilistic estimate based on patterns
-        learned from its training data. It cannot prove who wrote a piece
-        of text, and its predictions can be incorrect.
+            <p class="disclaimer">
+                Spider-Sense produces a probabilistic estimate based
+                on patterns learned from its training data. AI-text
+                detection is imperfect, and the result should not be
+                considered definitive proof of authorship.
+            </p>
 
-    </div>
+        </div>
+    </section>
 
-
-    <!-- FOOTER -->
-    <footer>
-        SPIDER-SENSE // AI TEXT ANALYSIS SYSTEM
-        <br>
-        Built for responsible AI awareness.
-    </footer>
+</main>
 
 
-    <!-- JAVASCRIPT -->
-    <script>
-
-        let lastAnalyzedText = "";
-        let lastPrediction = "";
+<footer>
+    SPIDER-SENSE // AI TEXT ANALYSIS
+</footer>
 
 
-        async function analyzeText() {
+<script>
 
-            const input = document.getElementById("text-input");
-            const text = input.value.trim();
+    /*
+     * IMPORTANT:
+     * Replace this with your actual Render backend URL.
+     *
+     * Example:
+     * const API_URL = "https://spider-sense-ai.onrender.com";
+     */
 
-            if (!text) {
-                alert("Please enter some text first.");
-                return;
-            }
-
-            lastAnalyzedText = text;
-
-            const resultBox = document.getElementById("result-box");
-            const result = document.getElementById("result");
-            const confidence = document.getElementById("confidence");
-            const feedbackBox = document.getElementById("feedback-box");
-            const correctionBox = document.getElementById("correction-box");
-
-            resultBox.style.display = "block";
-
-            result.innerText = "ANALYZING...";
-            confidence.innerText = "";
-
-            feedbackBox.style.display = "none";
-            correctionBox.style.display = "none";
+    const API_URL =
+        "https://YOUR-APP-NAME.onrender.com";
 
 
-            try {
-
-                const response = await fetch("/predict", {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        text: text
-                    })
-
-                });
+    let lastAnalyzedText = "";
+    let lastPrediction = "";
 
 
-                const data = await response.json();
+    // ==========================================
+    // ANALYZE TEXT
+    // ==========================================
+
+    async function analyzeText() {
+
+        const textInput =
+            document.getElementById("textInput");
+
+        const analyzeButton =
+            document.getElementById("analyzeButton");
+
+        const result =
+            document.getElementById("result");
+
+        const prediction =
+            document.getElementById("prediction");
+
+        const confidence =
+            document.getElementById("confidence");
+
+        const confidenceBar =
+            document.getElementById("confidence-bar");
+
+        const feedbackBox =
+            document.getElementById("feedback-box");
 
 
-                if (!response.ok) {
-                    throw new Error(
-                        data.error || "Prediction failed."
-                    );
-                }
+        const text =
+            textInput.value.trim();
 
 
-                lastPrediction = data.result;
+        if (!text) {
 
+            alert(
+                "Please enter some text first."
+            );
 
-                result.innerText = data.result;
-
-                confidence.innerText =
-                    "Confidence: " +
-                    data.confidence +
-                    "%";
-
-
-                feedbackBox.style.display = "block";
-
-
-            } catch (error) {
-
-                result.innerText = "ERROR";
-
-                confidence.innerText =
-                    error.message;
-
-                feedbackBox.style.display = "none";
-            }
-
+            return;
         }
 
 
-        async function predictionCorrect() {
-
-            let correctLabel;
+        lastAnalyzedText = text;
 
 
-            if (lastPrediction === "AI-generated") {
+        analyzeButton.disabled = true;
 
-                correctLabel = "ai";
-
-            } else {
-
-                correctLabel = "human";
-
-            }
+        analyzeButton.textContent =
+            "ANALYZING...";
 
 
-            await sendFeedback(correctLabel);
+        result.style.display =
+            "block";
 
-        }
+        prediction.textContent =
+            "ANALYZING...";
 
+        confidence.textContent =
+            "Please wait...";
 
-        function showCorrection() {
+        confidenceBar.style.width =
+            "0%";
 
-            document.getElementById(
-                "correction-box"
-            ).style.display = "block";
-
-        }
-
-
-        async function submitCorrection(label) {
-
-            await sendFeedback(label);
-
-        }
+        feedbackBox.style.display =
+            "none";
 
 
-        async function sendFeedback(correctLabel) {
+        try {
 
-            if (!lastAnalyzedText) {
-
-                alert(
-                    "Analyze some text first."
-                );
-
-                return;
-            }
-
-
-            try {
-
-                const response = await fetch(
-                    "/feedback",
+            const response =
+                await fetch(
+                    `${API_URL}/predict`,
                     {
+
                         method: "POST",
 
                         headers: {
-                            "Content-Type": "application/json"
+                            "Content-Type":
+                                "application/json"
                         },
 
                         body: JSON.stringify({
-
-                            text: lastAnalyzedText,
-
-                            correct_label: correctLabel
-
+                            text: text
                         })
+
                     }
                 );
 
 
-                const data = await response.json();
+            const data =
+                await response.json();
 
 
-                if (!response.ok) {
+            if (!response.ok) {
 
-                    throw new Error(
-                        data.error ||
-                        "Could not save feedback."
-                    );
-
-                }
-
-
-                if (data.retraining) {
-
-                    alert(
-                        "✓ Feedback saved!\n\n" +
-                        "The feedback threshold has been reached.\n\n" +
-                        "🧠 Spider-Sense is now retraining automatically."
-                    );
-
-                } else {
-
-                    alert(
-                        "✓ Feedback saved!\n\n" +
-                        "Feedback collected: " +
-                        data.feedback_count +
-                        "\n\n" +
-                        "Examples until automatic retraining: " +
-                        data.remaining_until_retrain
-                    );
-
-                }
-
-
-                document.getElementById(
-                    "feedback-box"
-                ).style.display = "none";
-
-
-                document.getElementById(
-                    "correction-box"
-                ).style.display = "none";
-
-
-            } catch (error) {
-
-                alert(
-                    "Error: " +
-                    error.message
+                throw new Error(
+                    data.error ||
+                    "Prediction failed."
                 );
 
             }
 
+
+            /*
+             * Expected backend response:
+             *
+             * {
+             *   "prediction": "AI",
+             *   "confidence": 0.87
+             * }
+             */
+
+
+            const predictedLabel =
+                data.prediction ||
+                data.label ||
+                "Unknown";
+
+
+            let confidenceValue =
+                Number(
+                    data.confidence || 0
+                );
+
+
+            /*
+             * If backend returns confidence
+             * as a decimal such as 0.87,
+             * convert it to percentage.
+             */
+
+            if (confidenceValue <= 1) {
+                confidenceValue *= 100;
+            }
+
+
+            confidenceValue =
+                Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        confidenceValue
+                    )
+                );
+
+
+            lastPrediction =
+                String(predictedLabel)
+                    .toLowerCase();
+
+
+            prediction.textContent =
+                String(predictedLabel)
+                    .toUpperCase();
+
+
+            confidence.textContent =
+                "Confidence: " +
+                confidenceValue.toFixed(1) +
+                "%";
+
+
+            confidenceBar.style.width =
+                confidenceValue + "%";
+
+
+            feedbackBox.style.display =
+                "block";
+
+
+        } catch (error) {
+
+            prediction.textContent =
+                "ERROR";
+
+            confidence.textContent =
+                error.message;
+
+            confidenceBar.style.width =
+                "0%";
+
+
+            alert(
+                "Could not connect to Spider-Sense backend.\n\n" +
+                error.message
+            );
+
+        } finally {
+
+            analyzeButton.disabled =
+                false;
+
+            analyzeButton.textContent =
+                "ANALYZE TEXT";
+
+        }
+
+    }
+
+
+    // ==========================================
+    // USER SAYS PREDICTION IS CORRECT
+    // ==========================================
+
+    function predictionCorrect() {
+
+        if (!lastPrediction) {
+
+            alert(
+                "Analyze some text first."
+            );
+
+            return;
         }
 
 
-        // Ctrl + Enter = Analyze
-        document
-            .getElementById("text-input")
-            .addEventListener("keydown", function(event) {
+        submitCorrection(
+            lastPrediction
+        );
 
-                if (
-                    event.ctrlKey &&
-                    event.key === "Enter"
-                ) {
+    }
 
-                    analyzeText();
 
-                }
+    // ==========================================
+    // SHOW CORRECTION OPTIONS
+    // ==========================================
 
-            });
+    function showCorrection() {
 
-    </script>
+        document.getElementById(
+            "correction-box"
+        ).style.display = "block";
+
+    }
+
+
+    // ==========================================
+    // SUBMIT CORRECTION
+    // ==========================================
+
+    function submitCorrection(
+        label
+    ) {
+
+        sendFeedback(label);
+
+    }
+
+
+    // ==========================================
+    // SEND FEEDBACK TO BACKEND
+    // ==========================================
+
+    async function sendFeedback(
+        correctLabel
+    ) {
+
+        if (!lastAnalyzedText) {
+
+            alert(
+                "Analyze some text first."
+            );
+
+            return;
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_URL}/feedback`,
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body: JSON.stringify({
+
+                            text:
+                                lastAnalyzedText,
+
+                            correct_label:
+                                correctLabel
+
+                        })
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Could not save feedback."
+                );
+
+            }
+
+
+            if (data.retraining) {
+
+                alert(
+                    "✓ Feedback saved!\n\n" +
+                    "Spider-Sense is " +
+                    "retraining with " +
+                    "the collected feedback."
+                );
+
+            } else {
+
+                alert(
+                    "✓ Feedback saved!\n\n" +
+                    "Feedback collected: " +
+                    data.feedback_count
+                );
+
+            }
+
+
+            document.getElementById(
+                "feedback-box"
+            ).style.display =
+                "none";
+
+
+            document.getElementById(
+                "correction-box"
+            ).style.display =
+                "none";
+
+
+        } catch (error) {
+
+            alert(
+                "Error: " +
+                error.message
+            );
+
+        }
+
+    }
+
+</script>
 
 </body>
 </html>
+```
