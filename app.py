@@ -101,32 +101,26 @@ def load_model():
     global vectorizer
 
     if not os.path.exists(MODEL_FILE):
-
         raise FileNotFoundError(
             "model.pth not found."
         )
 
     if not os.path.exists(VECTORIZER_FILE):
-
         raise FileNotFoundError(
             "vectorizer.pkl not found."
         )
-
 
     new_vectorizer = joblib.load(
         VECTORIZER_FILE
     )
 
-
     input_size = len(
         new_vectorizer.get_feature_names_out()
     )
 
-
     new_model = TextClassifier(
         input_size
     )
-
 
     new_model.load_state_dict(
         torch.load(
@@ -135,10 +129,22 @@ def load_model():
         )
     )
 
-
     new_model.to(device)
-
     new_model.eval()
+
+    with model_lock:
+        vectorizer = new_vectorizer
+        model = new_model
+
+    print("Spider-Sense model loaded.")
+    print("Device:", device)
+
+
+# LOAD MODEL WHEN GUNICORN STARTS
+try:
+    load_model()
+except Exception as error:
+    print("Model loading failed:", error)
 
 
     with model_lock:
