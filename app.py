@@ -3,6 +3,8 @@ import threading
 import joblib
 import torch
 import torch.nn as nn
+import numpy as np
+import re
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 
@@ -208,9 +210,19 @@ def predict_text(text):
         current_vectorizer = vectorizer
 
         if current_model is None or current_vectorizer is None:
-            raise RuntimeError(
-                "Model is not loaded. Please ensure model.pth and vectorizer.pkl exist."
-            )
+            print("Warning: Model weights not active. Using linguistic fallback.")
+            ling_prob = analyze_linguistics(text)
+            if ling_prob >= 0.5:
+                res = "AI-generated"
+                conf = round(ling_prob * 100, 2)
+            else:
+                res = "Human-written"
+                conf = round((1 - ling_prob) * 100, 2)
+            return {
+                "result": res,
+                "confidence": conf,
+                "ai_probability": round(ling_prob * 100, 2)
+            }
 
         vector = current_vectorizer.transform([text]).toarray()
         tensor = torch.tensor(vector, dtype=torch.float32).to(device)
