@@ -810,6 +810,16 @@
     <!-- JAVASCRIPT -->
     <script>
 
+        const API_URL = (() => {
+            if (window.location.protocol.startsWith("http") && !window.location.hostname.includes("github.io")) {
+                return "";
+            }
+            if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+                return "http://localhost:5000";
+            }
+            return "https://spider-sense-9nqj.onrender.com";
+        })();
+
         let lastAnalyzedText = "";
         let lastPrediction = "";
 
@@ -843,7 +853,7 @@
 
             try {
 
-                const response = await fetch("/predict", {
+                const response = await fetch(`${API_URL}/predict`, {
 
                     method: "POST",
 
@@ -947,7 +957,7 @@
             try {
 
                 const response = await fetch(
-                    "/feedback",
+                    `${API_URL}/feedback`,
                     {
                         method: "POST",
 

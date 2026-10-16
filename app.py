@@ -3,36 +3,33 @@ import threading
 import joblib
 import torch
 import torch.nn as nn
-
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 
 
 # =========================================================
-# CONFIG
+# CONFIG & PATHS
 # =========================================================
 
-MODEL_FILE = "model.pth"
-VECTORIZER_FILE = "vectorizer.pkl"
-FEEDBACK_FILE = "feedback.txt"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_FILE = os.path.join(BASE_DIR, "model.pth")
+VECTORIZER_FILE = os.path.join(BASE_DIR, "vectorizer.pkl")
+FEEDBACK_FILE = os.path.join(BASE_DIR, "feedback.txt")
 
 FEEDBACK_THRESHOLD = 5
 
 
 # =========================================================
-# FLASK
+# FLASK & CORS
 # =========================================================
 
-app = Flask(__name__)
-
-CORS(
-    app,
-    resources={
-        r"/predict": {"origins": "*"},
-        r"/feedback": {"origins": "*"},
-        r"/health": {"origins": "*"}
-    }
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, "templates"),
+    static_folder=os.path.join(BASE_DIR, "templates")
 )
+
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 # =========================================================
@@ -45,49 +42,34 @@ device = torch.device(
 
 
 # =========================================================
-# MODEL
+# MODEL ARCHITECTURE
 # =========================================================
 
 class TextClassifier(nn.Module):
-
     def __init__(self, input_size):
-
         super().__init__()
-
         self.network = nn.Sequential(
-
             nn.Linear(input_size, 128),
-
             nn.ReLU(),
-
             nn.Dropout(0.3),
-
             nn.Linear(128, 64),
-
             nn.ReLU(),
-
             nn.Dropout(0.3),
-
             nn.Linear(64, 1)
-
         )
 
     def forward(self, x):
-
         return self.network(x)
 
 
 # =========================================================
-# GLOBAL MODEL
+# GLOBAL STATE
 # =========================================================
 
 model = None
 vectorizer = None
-
 model_lock = threading.Lock()
-
 retraining_lock = threading.Lock()
-
 retraining_running = False
 
 
@@ -96,39 +78,30 @@ retraining_running = False
 # =========================================================
 
 def load_model():
+    global model, vectorizer
 
-    global model
-    global vectorizer
+    # Auto-train if files are missing
+    if not os.path.exists(MODEL_FILE) or not os.path.exists(VECTORIZER_FILE):
+        print("Model or vectorizer file missing. Initializing training...")
+        try:
+            from train_model import train_model
+            train_model()
+        except Exception as error:
+            print("Auto-training failed:", error)
 
     if not os.path.exists(MODEL_FILE):
-        raise FileNotFoundError(
-            "model.pth not found."
-        )
+        raise FileNotFoundError(f"Model file not found: {MODEL_FILE}")
 
     if not os.path.exists(VECTORIZER_FILE):
-        raise FileNotFoundError(
-            "vectorizer.pkl not found."
-        )
+        raise FileNotFoundError(f"Vectorizer file not found: {VECTORIZER_FILE}")
 
-    new_vectorizer = joblib.load(
-        VECTORIZER_FILE
-    )
+    new_vectorizer = joblib.load(VECTORIZER_FILE)
+    input_size = len(new_vectorizer.get_feature_names_out())
 
-    input_size = len(
-        new_vectorizer.get_feature_names_out()
-    )
-
-    new_model = TextClassifier(
-        input_size
-    )
-
+    new_model = TextClassifier(input_size)
     new_model.load_state_dict(
-        torch.load(
-            MODEL_FILE,
-            map_location=device
-        )
+        torch.load(MODEL_FILE, map_location=device, weights_only=True)
     )
-
     new_model.to(device)
     new_model.eval()
 
@@ -136,67 +109,31 @@ def load_model():
         vectorizer = new_vectorizer
         model = new_model
 
-    print("Spider-Sense model loaded.")
+    print("Spider-Sense model loaded successfully.")
     print("Device:", device)
+    return True
 
 
-# LOAD MODEL WHEN GUNICORN STARTS
+# Load model at startup
 try:
     load_model()
-except Exception as error:
-    print("Model loading failed:", error)
-
-
-    with model_lock:
-
-        vectorizer = new_vectorizer
-
-        model = new_model
-
-
-    print("Spider-Sense model loaded.")
-
-    print(
-        "Device:",
-        device
-    )
+except Exception as startup_err:
+    print("Startup model loading failed (will retry on first request):", startup_err)
 
 
 # =========================================================
-# FEEDBACK COUNT
+# FEEDBACK STORAGE
 # =========================================================
 
 def get_feedback_count():
-
-    if not os.path.exists(
-        FEEDBACK_FILE
-    ):
-
+    if not os.path.exists(FEEDBACK_FILE):
         return 0
 
-
-    with open(
-        FEEDBACK_FILE,
-        "r",
-        encoding="utf-8"
-    ) as file:
-
-        return sum(
-            1
-            for line in file
-            if line.strip()
-        )
+    with open(FEEDBACK_FILE, "r", encoding="utf-8") as file:
+        return sum(1 for line in file if line.strip())
 
 
-# =========================================================
-# SAVE FEEDBACK
-# =========================================================
-
-def save_feedback(
-    text,
-    correct_label
-):
-
+def save_feedback(text, correct_label):
     clean_text = (
         text
         .replace("\t", " ")
@@ -205,16 +142,8 @@ def save_feedback(
         .strip()
     )
 
-
-    with open(
-        FEEDBACK_FILE,
-        "a",
-        encoding="utf-8"
-    ) as file:
-
-        file.write(
-            f"{correct_label}\t{clean_text}\n"
-        )
+    with open(FEEDBACK_FILE, "a", encoding="utf-8") as file:
+        file.write(f"{correct_label}\t{clean_text}\n")
 
 
 # =========================================================
@@ -222,78 +151,42 @@ def save_feedback(
 # =========================================================
 
 def predict_text(text):
+    global model, vectorizer
 
     with model_lock:
+        if model is None or vectorizer is None:
+            try:
+                load_model()
+            except Exception as load_err:
+                print("On-demand model loading failed:", load_err)
 
         current_model = model
-
         current_vectorizer = vectorizer
 
-
-        if (
-            current_model is None
-            or current_vectorizer is None
-        ):
-
+        if current_model is None or current_vectorizer is None:
             raise RuntimeError(
-                "Model is not loaded."
+                "Model is not loaded. Please ensure model.pth and vectorizer.pkl exist."
             )
 
-
-        vector = current_vectorizer.transform(
-            [text]
-        ).toarray()
-
-
-        tensor = torch.tensor(
-            vector,
-            dtype=torch.float32
-        ).to(device)
-
+        vector = current_vectorizer.transform([text]).toarray()
+        tensor = torch.tensor(vector, dtype=torch.float32).to(device)
 
         current_model.eval()
-
-
         with torch.no_grad():
-
-            output = current_model(
-                tensor
-            )
-
-            probability = torch.sigmoid(
-                output
-            ).item()
-
+            output = current_model(tensor)
+            probability = torch.sigmoid(output).item()
 
     if probability >= 0.5:
-
         result = "AI-generated"
-
         confidence = probability * 100
-
     else:
-
         result = "Human-written"
-
-        confidence = (
-            1 - probability
-        ) * 100
-
+        confidence = (1 - probability) * 100
 
     return {
-
         "result": result,
-
-        "confidence": round(
-            confidence,
-            2
-        ),
-
-        "ai_probability": round(
-            probability * 100,
-            2
-        )
-
+        "confidence": round(confidence, 2),
+        "ai_probability": round(probability * 100, 2)
     }
 
 
@@ -302,390 +195,161 @@ def predict_text(text):
 # =========================================================
 
 def retrain_model():
-
     global retraining_running
 
-
     if retraining_running:
-
-        print(
-            "Retraining already running."
-        )
-
+        print("Retraining already running.")
         return
 
-
     with retraining_lock:
-
         retraining_running = True
-
-
         try:
-
-            print()
-            print(
-                "Spider-Sense retraining started..."
-            )
-
-
+            print("\nSpider-Sense retraining started...")
             from train_model import train_model
-
-
             success = train_model()
-
-
             if success:
-
                 load_model()
-
-
-                print(
-                    "Spider-Sense model updated."
-                )
-
+                print("Spider-Sense model updated successfully from feedback.")
             else:
-
-                print(
-                    "Training did not complete."
-                )
-
-
+                print("Training did not complete.")
         except Exception as error:
-
-            print(
-                "Retraining error:",
-                error
-            )
-
-
+            print("Retraining error:", error)
         finally:
-
             retraining_running = False
 
 
 # =========================================================
-# HOME
+# ROUTES
 # =========================================================
 
 @app.route("/")
 def home():
+    template_path = os.path.join(BASE_DIR, "templates", "index.html")
+    if os.path.exists(template_path):
+        return render_template("index.html")
+
+    root_index = os.path.join(BASE_DIR, "index.html")
+    if os.path.exists(root_index):
+        return send_from_directory(BASE_DIR, "index.html")
 
     return jsonify({
-
         "name": "Spider-Sense",
-
         "status": "online",
-
-        "message":
-            "Spider-Sense API is running."
-
+        "message": "Spider-Sense API is running."
     })
 
 
-# =========================================================
-# PREDICT
-# =========================================================
+@app.route("/api")
+def api_info():
+    return jsonify({
+        "name": "Spider-Sense",
+        "status": "online",
+        "model_loaded": model is not None,
+        "device": str(device),
+        "feedback_count": get_feedback_count(),
+        "endpoints": {
+            "GET /": "Web UI",
+            "POST /predict": "Analyze text for AI vs Human",
+            "POST /feedback": "Submit correct label for continuous learning",
+            "GET /health": "Health and model status"
+        }
+    })
 
-@app.route(
-    "/predict",
-    methods=["POST"]
-)
+
+@app.route("/health")
+def health():
+    return jsonify({
+        "status": "online",
+        "model": "Spider-Sense",
+        "model_loaded": model is not None,
+        "device": str(device),
+        "feedback_count": get_feedback_count(),
+        "retraining": retraining_running
+    })
+
+
+@app.route("/predict", methods=["POST"])
 def predict():
-
-    data = request.get_json(
-        silent=True
-    )
-
+    data = request.get_json(silent=True)
 
     if not data:
+        return jsonify({"error": "Invalid JSON request."}), 400
 
-        return jsonify({
+    text = data.get("text", "")
 
-            "error":
-                "Invalid JSON request."
-
-        }), 400
-
-
-    text = data.get(
-        "text",
-        ""
-    )
-
-
-    if not isinstance(
-        text,
-        str
-    ):
-
-        return jsonify({
-
-            "error":
-                "Text must be a string."
-
-        }), 400
-
+    if not isinstance(text, str):
+        return jsonify({"error": "Text must be a string."}), 400
 
     text = text.strip()
 
-
     if not text:
-
-        return jsonify({
-
-            "error":
-                "Text cannot be empty."
-
-        }), 400
-
+        return jsonify({"error": "Text cannot be empty."}), 400
 
     try:
-
-        result = predict_text(
-            text
-        )
-
-
-        return jsonify(
-            result
-        )
-
-
+        result = predict_text(text)
+        return jsonify(result)
     except Exception as error:
-
-        print(
-            "Prediction error:",
-            error
-        )
+        print("Prediction error:", error)
+        return jsonify({"error": str(error)}), 500
 
 
-        return jsonify({
-
-            "error":
-                str(error)
-
-        }), 500
-
-
-# =========================================================
-# FEEDBACK
-# =========================================================
-
-@app.route(
-    "/feedback",
-    methods=["POST"]
-)
+@app.route("/feedback", methods=["POST"])
 def feedback():
-
-    data = request.get_json(
-        silent=True
-    )
-
+    data = request.get_json(silent=True)
 
     if not data:
+        return jsonify({"error": "Invalid JSON request."}), 400
 
-        return jsonify({
+    text = data.get("text", "")
+    correct_label = data.get("correct_label", "")
 
-            "error":
-                "Invalid JSON request."
+    if not isinstance(text, str):
+        return jsonify({"error": "Invalid text."}), 400
 
-        }), 400
-
-
-    text = data.get(
-        "text",
-        ""
-    )
-
-
-    correct_label = data.get(
-        "correct_label",
-        ""
-    )
-
-
-    if not isinstance(
-        text,
-        str
-    ):
-
-        return jsonify({
-
-            "error":
-                "Invalid text."
-
-        }), 400
-
-
-    if not isinstance(
-        correct_label,
-        str
-    ):
-
-        return jsonify({
-
-            "error":
-                "Invalid label."
-
-        }), 400
-
+    if not isinstance(correct_label, str):
+        return jsonify({"error": "Invalid label."}), 400
 
     text = text.strip()
-
-    correct_label = (
-        correct_label
-        .strip()
-        .lower()
-    )
-
+    correct_label = correct_label.strip().lower()
 
     if not text:
+        return jsonify({"error": "Text cannot be empty."}), 400
 
-        return jsonify({
+    if correct_label not in ["human", "ai"]:
+        return jsonify({"error": "Label must be human or ai."}), 400
 
-            "error":
-                "Text cannot be empty."
+    save_feedback(text, correct_label)
+    feedback_count = get_feedback_count()
+    print("Feedback received. Total feedback entries:", feedback_count)
 
-        }), 400
-
-
-    if correct_label not in [
-        "human",
-        "ai"
-    ]:
-
-        return jsonify({
-
-            "error":
-                "Label must be human or ai."
-
-        }), 400
-
-
-    save_feedback(
-        text,
-        correct_label
-    )
-
-
-    feedback_count = (
-        get_feedback_count()
-    )
-
-
-    print(
-        "Feedback received:",
-        feedback_count
-    )
-
-
-    if (
-        feedback_count >=
-        FEEDBACK_THRESHOLD
-        and not retraining_running
-    ):
-
-        thread = threading.Thread(
-            target=retrain_model,
-            daemon=True
-        )
-
+    if feedback_count >= FEEDBACK_THRESHOLD and not retraining_running:
+        thread = threading.Thread(target=retrain_model, daemon=True)
         thread.start()
 
-
         return jsonify({
-
             "success": True,
-
-            "message":
-                "Feedback saved. "
-                "Spider-Sense is "
-                "retraining.",
-
-            "feedback_count":
-                feedback_count,
-
-            "retraining":
-                True
-
+            "message": "Feedback saved. Spider-Sense is retraining.",
+            "feedback_count": feedback_count,
+            "retraining": True
         })
 
-
     return jsonify({
-
         "success": True,
-
-        "message":
-            "Feedback saved.",
-
-        "feedback_count":
-            feedback_count,
-
-        "remaining_until_retrain":
-            max(
-                0,
-                FEEDBACK_THRESHOLD
-                - feedback_count
-            ),
-
-        "retraining":
-            retraining_running
-
+        "message": "Feedback saved.",
+        "feedback_count": feedback_count,
+        "remaining_until_retrain": max(0, FEEDBACK_THRESHOLD - feedback_count),
+        "retraining": retraining_running
     })
 
 
 # =========================================================
-# HEALTH
-# =========================================================
-
-@app.route(
-    "/health"
-)
-def health():
-
-    return jsonify({
-
-        "status":
-            "online",
-
-        "model":
-            "Spider-Sense",
-
-        "device":
-            str(device),
-
-        "feedback_count":
-            get_feedback_count(),
-
-        "retraining":
-            retraining_running
-
-    })
-
-
-# =========================================================
-# START
+# START SERVER
 # =========================================================
 
 if __name__ == "__main__":
-
-    load_model()
-
-
-    port = int(
-        os.environ.get(
-            "PORT",
-            5000
-        )
-    )
-
-
-    app.run(
-
-        host="0.0.0.0",
-
-        port=port,
-
-        debug=False
-
-    )
+    port = int(os.environ.get("PORT", 5000))
+    print(f"\n==========================================")
+    print(f" Spider-Sense server starting on port {port}")
+    print(f" Open http://localhost:{port} in your browser")
+    print(f"==========================================\n")
+    app.run(host="0.0.0.0", port=port, debug=False)

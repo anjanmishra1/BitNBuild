@@ -19,11 +19,13 @@ from sklearn.metrics import (
 # CONFIG
 # ============================================================
 
-BASE_DATASET = "dataset.txt"
-FEEDBACK_DATASET = "feedback.txt"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-MODEL_FILE = "model.pth"
-VECTORIZER_FILE = "vectorizer.pkl"
+BASE_DATASET = os.path.join(BASE_DIR, "dataset.txt")
+FEEDBACK_DATASET = os.path.join(BASE_DIR, "feedback.txt")
+
+MODEL_FILE = os.path.join(BASE_DIR, "model.pth")
+VECTORIZER_FILE = os.path.join(BASE_DIR, "vectorizer.pkl")
 
 RANDOM_STATE = 42
 
