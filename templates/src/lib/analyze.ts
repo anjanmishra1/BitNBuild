@@ -161,7 +161,7 @@ function computeMetrics(text: string, aiProb: number) {
 }
 
 export async function analyzeText(text: string): Promise<AnalysisResult> {
-  await new Promise((r) => setTimeout(r, 2200));
+  await new Promise((r) => setTimeout(r, 150));
 
   const { segments, aiProb } = findSegments(text);
   const aiProbability = aiProb;

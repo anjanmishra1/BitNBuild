@@ -175,13 +175,13 @@ CASUAL_HUMAN_PATTERNS = [
     r"\b(i|me|my|we|us|our|you|he|she)\b"
 ]
 
+COMPILED_AI_PATTERNS = [re.compile(p, re.IGNORECASE) for p in GENERIC_AI_PATTERNS]
+COMPILED_HUMAN_PATTERNS = [re.compile(p, re.IGNORECASE) for p in CASUAL_HUMAN_PATTERNS]
+
 def analyze_linguistics(text):
     lower = text.lower()
-    words = re.findall(r"\b[a-z]+\b", lower)
-    if not words:
-        return 0.5
-    ai_hits = sum(1 for p in GENERIC_AI_PATTERNS if re.search(p, lower))
-    human_hits = sum(1 for p in CASUAL_HUMAN_PATTERNS if re.search(p, lower))
+    ai_hits = sum(1 for p in COMPILED_AI_PATTERNS if p.search(lower))
+    human_hits = sum(1 for p in COMPILED_HUMAN_PATTERNS if p.search(lower))
     score = 0.5
     if ai_hits > 0:
         score += min(0.45, ai_hits * 0.18)

@@ -811,12 +811,19 @@
     <script>
 
         const API_URL = (() => {
-            if (window.location.protocol.startsWith("http") && !window.location.hostname.includes("github.io")) {
+            const proto = window.location.protocol;
+            const host = window.location.hostname;
+            const port = window.location.port;
+
+            // Direct Flask backend (port 5000 or same origin)
+            if (proto.startsWith("http") && (port === "5000" || (port === "" && !host.includes("github.io")))) {
                 return "";
             }
-            if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-                return "http://localhost:5000";
+            // Local file, Live Server (port 5500), Vite, localhost, or 127.0.0.1
+            if (proto === "file:" || host === "localhost" || host === "127.0.0.1" || host === "") {
+                return "http://127.0.0.1:5000";
             }
+            // Remote GitHub Pages
             return "https://spider-sense-9nqj.onrender.com";
         })();
 
@@ -850,26 +857,24 @@
             feedbackBox.style.display = "none";
             correctionBox.style.display = "none";
 
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
 
             try {
 
                 const response = await fetch(`${API_URL}/predict`, {
-
                     method: "POST",
-
                     headers: {
                         "Content-Type": "application/json"
                     },
-
                     body: JSON.stringify({
                         text: text
-                    })
-
+                    }),
+                    signal: controller.signal
                 });
-
+                clearTimeout(timeoutId);
 
                 const data = await response.json();
-
 
                 if (!response.ok) {
                     throw new Error(
@@ -877,28 +882,22 @@
                     );
                 }
 
-
                 lastPrediction = data.result;
 
-
                 result.innerText = data.result;
-
                 confidence.innerText =
                     "Confidence: " +
                     data.confidence +
                     "%";
 
-
                 feedbackBox.style.display = "block";
 
-
             } catch (error) {
-
+                clearTimeout(timeoutId);
                 result.innerText = "ERROR";
-
-                confidence.innerText =
-                    error.message;
-
+                confidence.innerText = error.name === "AbortError"
+                    ? "Connection timed out. Make sure 'python app.py' is running."
+                    : error.message;
                 feedbackBox.style.display = "none";
             }
 

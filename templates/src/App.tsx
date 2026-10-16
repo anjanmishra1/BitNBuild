@@ -35,8 +35,8 @@ export default function App() {
     setResult(null);
 
     const progressTimer = setInterval(() => {
-      setProgress((p) => (p < 90 ? p + Math.random() * 8 : p)), 120;
-    });
+      setProgress((p) => (p < 90 ? p + 25 : p));
+    }, 40);
 
     try {
       const analysis = await analyzeText(text);
@@ -47,8 +47,8 @@ export default function App() {
         setIsAnalyzing(false);
         setTimeout(() => {
           resultsRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }, 200);
-      }, 400);
+        }, 80);
+      }, 100);
     } catch {
       clearInterval(progressTimer);
       setIsAnalyzing(false);
