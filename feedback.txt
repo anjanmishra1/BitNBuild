@@ -102,3 +102,6 @@ human	Adarsh is a man
 human	Adarsh is a man
 human	Adarsh is a man
 human	Adarsh is a man
+human	hellooo 123
+ai	The old station wagon rattled down the gravel road, kicking up a thick cloud of dust that lingered in the heavy afternoon air long after the taillights faded from view. Inside the house, the smell of simmering stew drifted from the kitchen, heavy with garlic and bay leaves, grounding the quiet room in a sudden sense of warmth. She set her book down on the worn wooden table, watching the last sliver of sunlight slip behind the distant ridge, wondering if peace always felt this much like a deep, unexpected exhale.
+ai	The old station wagon rattled down the gravel road, kicking up a thick cloud of dust that lingered in the heavy afternoon air long after the taillights faded from view. Inside the house, the smell of simmering stew drifted from the kitchen, heavy with garlic and bay leaves, grounding the quiet room in a sudden sense of warmth. She set her book down on the worn wooden table, watching the last sliver of sunlight slip behind the distant ridge, wondering if peace always felt this much like a deep, unexpected exhale.
